@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Playlist Created</title>
+</head>
+<body>
+    <h1>Playlist "{{ playlist_name }}" Created Successfully</h1>
+    
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    
+    <h2>Tracks:</h2>
+    <ul>
+        {% for track in tracks %}
+            <li>{{ track.name }} by {{ track.artists[0].name }} - {{ track.duration_ms // 60000 }}:{{ ((track.duration_ms // 1000) % 60) | format_duration }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
