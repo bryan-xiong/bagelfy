@@ -1,7 +1,7 @@
 import os
 import requests
 import random
-from flask import Flask, render_template, redirect, request, session, url_for, flash
+from flask import Flask, render_template, redirect, request, session, url_for, flash, jsonify
 from urllib.parse import urlencode
 
 app = Flask(__name__)
@@ -133,17 +133,17 @@ def playlistInfo(playlist_id):
         avg_features = calculate_avg_features(audio_features)
         recommendations = get_recommendations(headers, random_tracks, avg_features, track_ids, num_songs)
 
-        track_infos = [{
-            'id': track['id'],
-            'name': track['name'],
-            'artists': ', '.join(artist['name'] for artist in track['artists']),
-            'image': track['album']['images'][0]['url'] if track['album']['images'] else None,
-            'duration': track['duration_ms']
-        } for track in recommendations]
-
         if not recommendations:
             flash("Error fetching recommendations or no recommendations found.")
             return redirect(url_for('playlistInfo', playlist_id=playlist_id))
+        
+        track_infos = [{
+        'id': track['id'],
+        'name': track['name'],
+        'artists': ', '.join(artist['name'] for artist in track['artists']),
+        'image': track['album']['images'][0]['url'] if track['album']['images'] else None,
+        'duration': track['duration_ms']
+        } for track in recommendations]
 
         track_uris = [f'spotify:track:{track["id"]}' for track in recommendations]
         success, new_playlist_id = create_playlist(access_token, user_id, playlist_name, track_uris)
@@ -245,6 +245,25 @@ def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
         attempts += 1
 
     return unique_recommendations
+
+@app.route('/add_track/<playlist_id>/<track_id>', methods=['POST'])
+def add_track(playlist_id, track_id):
+    access_token = session.get('access_token')
+    if not access_token:
+        return jsonify({'status': 'error', 'message': 'Not logged in'}), 401
+
+    headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
+
+    try:
+        response = requests.post(
+            f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks',
+            headers=headers,
+            json={'uris': [f'spotify:track:{track_id}']}
+        )
+        response.raise_for_status()
+        return jsonify({'status': 'success', 'message': 'Track added successfully'}), 201
+    except requests.RequestException as e:
+        return jsonify({'status': 'error', 'message': 'Failed to add track'}), 400
 
 @app.template_filter('format_duration')
 def format_duration(value):
