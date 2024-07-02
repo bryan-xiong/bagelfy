@@ -134,12 +134,12 @@ def playlistInfo(playlist_id):
         recommendations = get_recommendations(headers, random_tracks, avg_features, track_ids, num_songs)
 
         track_infos = [{
-            'id': item['track']['id'],
-            'name': item['track']['name'],
-            'artists': ', '.join(artist['name'] for artist in item['track']['artists']),
-            'image': item['track']['album']['images'][0]['url'] if item['track']['album']['images'] else None,
-            'duration': item['track']['duration_ms']
-        } for item in recommendations['items'] if item['track']]
+            'id': track['id'],
+            'name': track['name'],
+            'artists': ', '.join(artist['name'] for artist in track['artists']),
+            'image': track['album']['images'][0]['url'] if track['album']['images'] else None,
+            'duration': track['duration_ms']
+        } for track in recommendations]
 
         if not recommendations:
             flash("Error fetching recommendations or no recommendations found.")
@@ -251,4 +251,4 @@ def format_duration(value):
     return f'{value:02}'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
