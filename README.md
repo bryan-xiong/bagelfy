@@ -1,4 +1,5 @@
-# Playlistify-Bryan Xiong, Darren Choe
+# Playlistify
+Authors: Bryan Xiong, Darren Choe
 
 
 
