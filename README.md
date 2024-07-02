@@ -1,4 +1,5 @@
-#Playlistify 
+# Playlistify-Bryan Xiong, Darren Choe
+
 
 
 # Installation Instructions
