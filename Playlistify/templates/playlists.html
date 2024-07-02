@@ -9,7 +9,14 @@
     <h1>Your Playlists</h1>
     <ul>
         {% for playlist in playlists %}
-            <li><a href="{{ url_for('playlistInfo', playlist_id=playlist.id) }}">{{ playlist.name }}</a></li>
+            <li>
+                <a href="{{ url_for('playlistInfo', playlist_id=playlist.id) }}">
+                    {% if playlist.images and playlist.images[0].url %}
+                        <img src="{{ playlist.images[0].url }}" alt="{{ playlist.name }}" style="width:50px;height:50px;">
+                    {% endif %}
+                    {{ playlist.name }}
+                </a>
+            </li>
         {% endfor %}
     </ul>
 </body>
