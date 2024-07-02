@@ -21,8 +21,13 @@
     
     <h2>Tracks:</h2>
     <ul>
-        {% for track in tracks %}
-            <li>{{ track.name }} by {{ track.artists[0].name }} - {{ track.duration_ms // 60000 }}:{{ ((track.duration_ms // 1000) % 60) | format_duration }}</li>
+        {% for track in track_infos %}
+            <li>
+                {% if track['image'] %}
+                    <img src="{{ track['image'] }}" alt="{{ track['name'] }}" style="width:50px;height:50px;">
+                {% endif %}
+                {{ track['name'] }} by {{ track['artists'] }} - {{ track['duration'] // 60000 }}:{{ ((track['duration'] // 1000) % 60) | format_duration }}
+            </li>
         {% endfor %}
     </ul>
 </body>
