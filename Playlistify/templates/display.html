@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Playlist Created</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        h1, h2 {
+            color: #800080; /* Purple */
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            opacity: 0; /* Initially hidden */
+            animation: fadeInAnimation 0.5s ease forwards; /* Animation setup */
+            position: relative; /* Ensure relative positioning for absolute child */
+        }
+        @keyframes fadeInAnimation {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        img {
+            vertical-align: middle;
+            margin-right: 10px;
+            border-radius: 5px;
+            width: 50px;
+            height: 50px;
+        }
+        .track-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align items to start (left) */
+            flex: 1; /* Take remaining space */
+            margin-left: 10px; /* Adjust margin as needed */
+            overflow: hidden;
+            position: relative;
+        }
+        .track-name {
+            font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-bottom: 5px; /* Optional: Adjust spacing */
+            max-width: calc(100% - 20px); /* Adjust based on your design */
+            cursor: pointer; /* Optional: Add cursor pointer for indicating text overflow */
+        }
+        .track-name:hover {
+            overflow: visible; /* Show full text on hover */
+            white-space: normal;
+            z-index: 1; /* Optional: Ensure text appears above other content */
+            background-color: white; /* Optional: Background color to improve readability */
+            position: absolute; /* Optional: Adjust for positioning */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Optional: Add box shadow for emphasis */
+            padding: 10px; /* Optional: Adjust padding for readability */
+            max-width: none; /* Optional: Remove max-width on hover */
+        }
+        .track-info-details {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9em; /* Adjust font size for details */
+            color: #666; /* Adjust color for details */
+        }
+        .add-to-playlist {
+            color: #800080; /* Purple */
+            font-size: 1.5em;
+            text-decoration: none;
+            transition: color 0.3s;
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .add-to-playlist::after {
+            content: "+";
+            background-color: transparent;
+            color: #800080; /* Purple */
+            padding: 5px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Playlist "{{ playlist_name }}" Created Successfully!</h1>
+    
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    
+    <h2>Tracks:</h2>
+    <ul>
+        {% for track in track_infos %}
+            <li style="animation-delay: {{ loop.index * 0.1 }}s;"> <!-- Animation delay based on index -->
+                {% if track['image'] %}
+                    <img src="{{ track['image'] }}" alt="{{ track['name'] }}">
+                {% endif %}
+                <div class="track-info">
+                    <div class="track-name">{{ track['name'] }}</div>
+                    <div class="track-info-details">{{ track['artists'] }} - {{ track['duration'] // 60000 }}:{{ ((track['duration'] // 1000) % 60) | format_duration }}</div>
+                </div>
+                <a href="#" class="add-to-playlist" onclick="addToPlaylist('{{ playlist_id }}', '{{ track['id'] }}')"></a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function addToPlaylist(playlistId, trackId) {
+            // Construct the URL for the POST request
+            var url = '/add_track/' + playlistId + '/' + trackId;
+
+            // Make a POST request using fetch API
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add track');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle success response
+                alert(data.message); // Optionally display a success message
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to add track'); // Display an error message
+            });
+        }
+    </script>
+</body>
+</html>
