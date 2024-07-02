@@ -1,4 +1,7 @@
-Playlistify
+#Playlistify 
+
+
+# Installation Instructions
 
 How to start:
 1. Download the files
