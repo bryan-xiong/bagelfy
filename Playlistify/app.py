@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 import random
 from flask import Flask, render_template, redirect, request, session, url_for, flash, jsonify
@@ -15,8 +16,15 @@ SCOPE = 'playlist-modify-public playlist-modify-private user-read-private'
 
 @app.route('/')
 def home():
-    return '<a href="/login">Login with Spotify:</a>'
+    return render_template("home.html")
 
+@app.route('/about')
+def about():
+    return render_template("about.html")
+
+@app.route('/privacy')
+def privacy():
+    return render_template("privacy.html")
 @app.route('/login')
 def login():
     auth_url = 'https://accounts.spotify.com/authorize?' + urlencode({
@@ -149,7 +157,7 @@ def playlistInfo(playlist_id):
         success, new_playlist_id = create_playlist(access_token, user_id, playlist_name, track_uris)
 
         if success:
-            flash(f'Playlist "{playlist_name}" created successfully with ID: {new_playlist_id}')
+            flash(f'"{playlist_name}" is now in your Spotify Library with ID: {new_playlist_id}')
             return render_template('display.html', playlist_name=playlist_name, tracks=recommendations, track_infos = track_infos)
         else:
             flash('Failed to create playlist.')
@@ -245,6 +253,7 @@ def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
         attempts += 1
 
     return unique_recommendations
+
 
 @app.route('/add_track/<playlist_id>/<track_id>', methods=['POST'])
 def add_track(playlist_id, track_id):
