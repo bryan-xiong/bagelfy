@@ -1,7 +1,10 @@
 import os
-import re
+import time
+import logging
 import requests
 import random
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, render_template, redirect, request, session, url_for, flash, jsonify
 from urllib.parse import urlencode
 
@@ -13,6 +16,10 @@ CLIENT_ID = '2e2fd139796d4aab89e60b40777567d9'
 CLIENT_SECRET = '93f996cf889542fe9dec5f8bf53fccbc'
 REDIRECT_URI = 'http://localhost:5000/callback'
 SCOPE = 'playlist-modify-public playlist-modify-private user-read-private'
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
+                                               client_secret=CLIENT_SECRET,
+                                               redirect_uri=REDIRECT_URI,
+                                               scope=SCOPE))
 
 @app.route('/')
 def home():
@@ -21,9 +28,7 @@ def home():
 @app.route('/about')
 def about():
     return render_template("about.html")
-@app.route('/howitworks')
-def howitworks():
-    return render_template("howitworks.html")
+
 @app.route('/privacy')
 def privacy():
     return render_template("privacy.html")
@@ -88,7 +93,7 @@ def playlists():
         flash("Failed to fetch playlists.")
         return redirect(url_for('home'))
 
-@app.route('/create_playlist/<playlist_id>', methods=['GET', 'POST'])
+@app.route('/playlistInfo/<playlist_id>', methods=['GET', 'POST'])
 def playlistInfo(playlist_id):
     access_token = session.get('access_token')
     if not access_token:
@@ -116,6 +121,7 @@ def playlistInfo(playlist_id):
             response.raise_for_status()
             tracks_data = response.json()
         except requests.RequestException as e:
+            print(f"Error fetching playlist tracks: {e}")
             flash("Failed to fetch playlist tracks.")
             return redirect(url_for('playlistInfo', playlist_id=playlist_id))
 
@@ -137,6 +143,7 @@ def playlistInfo(playlist_id):
             audio_features_response.raise_for_status()
             audio_features = audio_features_response.json()['audio_features']
         except requests.RequestException as e:
+            print(f"Error fetching audio features: {e}")
             flash("Failed to fetch audio features.")
             return redirect(url_for('playlistInfo', playlist_id=playlist_id))
 
@@ -144,31 +151,34 @@ def playlistInfo(playlist_id):
         recommendations = get_recommendations(headers, random_tracks, avg_features, track_ids, num_songs)
 
         if not recommendations:
+            print(f"Error fetching recs: ")
             flash("Error fetching recommendations or no recommendations found.")
             return redirect(url_for('playlistInfo', playlist_id=playlist_id))
+
+        print(f"recs")
         
-        track_infos = [{
-        'id': track['id'],
-        'name': track['name'],
-        'artists': ', '.join(artist['name'] for artist in track['artists']),
-        'image': track['album']['images'][0]['url'] if track['album']['images'] else None,
-        'duration': track['duration_ms']
-        } for track in recommendations]
+        track_infos = recommendations
+        print(track_infos)
 
         track_uris = [f'spotify:track:{track["id"]}' for track in recommendations]
-        success, new_playlist_id = create_playlist(access_token, user_id, playlist_name, track_uris)
 
-        if success:
-            flash(f'"{playlist_name}" is now in your Spotify Library with ID: {new_playlist_id}')
-            return render_template('display.html', playlist_name=playlist_name, tracks=recommendations, track_infos = track_infos)
-        else:
-            flash('Failed to create playlist.')
-            return redirect(url_for('playlistInfo', playlist_id=playlist_id))
+        session['access_token'] = access_token
+        session['user_id'] = user_id
+        session['playlist_name'] = playlist_name
+        session['track_uris'] = track_uris
 
+        return render_template('display.html', playlist_name=playlist_name, track_infos = track_infos, 
+                               playlist_id = playlist_id, track_uris = track_uris)
+    
     return render_template('playlistInfo.html', playlist_id=playlist_id)
+    
+@app.route('/create_playlist/<playlist_id>', methods=['POST'])
+def create_playlist(playlist_id):
+    access_token = session.get('access_token')
+    user_id = session.get('user_id')
+    playlist_name = session.get('playlist_name')
+    track_uris = session.get('track_uris')
 
-def create_playlist(access_token, user_id, playlist_name, track_uris):
-    create_playlist_url = f'https://api.spotify.com/v1/users/{user_id}/playlists'
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json'
@@ -177,28 +187,29 @@ def create_playlist(access_token, user_id, playlist_name, track_uris):
         'name': playlist_name,
         'public': False
     }
-    response = requests.post(create_playlist_url, headers=headers, json=data)
-    
-    if response.status_code == 201:
-        response_data = response.json()
-        playlist_id = response_data['id']
-        add_tracks_url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
-        data = {'uris': track_uris}
-        response = requests.post(add_tracks_url, headers=headers, json=data)
 
-        # Debugging print statements
-        print(f"Response Status Code (Add Tracks): {response.status_code}")
-        print(f"Response JSON (Add Tracks): {response.json()}")
+    create_playlist_url = f'https://api.spotify.com/v1/users/{user_id}/playlists'
+    try:
+        response = requests.post(create_playlist_url, headers=headers, json=data)
+        response.raise_for_status()  # Raise exception for non-2xx responses
 
-        if response.status_code == 201 or response.status_code == 200:
-            print("Success creating playlist!") # Debug print
-            return True, playlist_id
+        if response.status_code == 201:
+            response_data = response.json()
+            new_playlist_id = response_data['id']
+
+            # Add tracks to the new playlist
+            add_tracks_url = f'https://api.spotify.com/v1/playlists/{new_playlist_id}/tracks'
+            add_tracks_data = {'uris': track_uris}
+            add_response = requests.post(add_tracks_url, headers=headers, json=add_tracks_data)
+            add_response.raise_for_status()
+
+            return jsonify({'message': f'Playlist "{playlist_name}" created successfully!', 'playlist_id': playlist_id}), 200
         else:
-            print(f"Error adding tracks: {response.json()}")  # Debug print
-            return False, None
-    else:
-        print(f"Error creating playlist: {response.json()}")  # Debug print
-        return False, None
+            return jsonify({'error': 'Failed to add tracks to the playlist.'}), 500
+
+    except requests.RequestException as e:
+        return jsonify({'error': 'Failed to create playlist.'}), 500
+
 
 def calculate_avg_features(audio_features):
     num_tracks = len(audio_features)
@@ -240,12 +251,30 @@ def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
                 'target_tempo': avg_features['tempo'],
             }
         )
+
+        if recommendations_response.status_code == 429:  # Rate limit exceeded
+                retry_after = int(recommendations_response.headers.get('Retry-After', 1))
+                logging.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds")
+                time.sleep(retry_after)
+                continue
         
         if recommendations_response.status_code != 200:
             return None
 
         recommendations_data = recommendations_response.json()
-        new_recommendations = [track for track in recommendations_data['tracks'] if track['id'] not in track_ids and track['id'] not in [rec['id'] for rec in unique_recommendations]]
+        new_recommendations = [
+            {
+                'id': track['id'],
+                'name': track['name'],
+                'artists': ', '.join(artist['name'] for artist in track['artists']),
+                'image': track['album']['images'][0]['url'] if track['album']['images'] else None,
+                'duration': track['duration_ms'],
+                'external_urls': track['external_urls']['spotify']  # Spotify external URL
+            } 
+            for track in recommendations_data['tracks']
+            if track['id'] not in track_ids 
+            and track['id'] not in [rec['id'] for rec in unique_recommendations]
+        ]
 
         unique_recommendations.extend(new_recommendations)
 
@@ -256,25 +285,13 @@ def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
 
     return unique_recommendations
 
-
 @app.route('/add_track/<playlist_id>/<track_id>', methods=['POST'])
 def add_track(playlist_id, track_id):
-    access_token = session.get('access_token')
-    if not access_token:
-        return jsonify({'status': 'error', 'message': 'Not logged in'}), 401
-
-    headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
-
     try:
-        response = requests.post(
-            f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks',
-            headers=headers,
-            json={'uris': [f'spotify:track:{track_id}']}
-        )
-        response.raise_for_status()
-        return jsonify({'status': 'success', 'message': 'Track added successfully'}), 201
-    except requests.RequestException as e:
-        return jsonify({'status': 'error', 'message': 'Failed to add track'}), 400
+        sp.playlist_add_items(playlist_id, [track_id])
+        return jsonify({'message': 'Track added successfully!'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
 @app.template_filter('format_duration')
 def format_duration(value):
