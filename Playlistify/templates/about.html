@@ -52,6 +52,7 @@
             padding-top: 20px;
             border-top: 1px solid #ccc; /* Gray border */
             text-align: center;
+            font-size: 0.8em;
         }
         .footer a {
             margin: 0 10px;
@@ -90,26 +91,17 @@
     <h1>About Playlistify</h1>
     <div class="profile-container">
         <div class="profile">
-            <img src="{{ url_for('static', filename='bryan.jpg') }}" alt="Bryan Image">
-            <p>Hi! I'm Bryan, an undergraduate student at the University of Maryland studying computer science. In my spare time, I enjoy thrifting, weightlifting, and baking!</p>
+            <img src="{{ url_for('static', filename='bryan.png') }}" alt="Bryan">
+            <p>Hi! I'm Bryan, an undergraduate student at the University of Maryland studying computer science. In my spare time, I enjoy sewing, working out, and gaming. Check out my projects here: <a href="https://github.com/bryan-xiong" target="_blank">https://github.com/bryan-xiong</a></p>
         </div>
         <div class="profile">
-            <img src="{{ url_for('static', filename='smiski3.jpg') }}" alt="Smiski Image">
+            <img src="{{ url_for('static', filename='smiski3.jpg') }}" alt="Darren">
             <p>Hey! My name is Darren, and I am currently an undergrad at UC Davis studying computer science. Some of my hobbies include powerlifting, debugging error-prone code, and trying new places to eat! You can check out some of my projects here: <a href="https://github.com/potsju" target="_blank">https://github.com/potsju</a></p>
         </div>
     </div>
-    <div class="credits">
+    <div class="footer">
         <p>Made by Bryan Xiong and Darren Choe</p>
-    </div>
-
-    <div class="footer-links">
-        <a href="/">Home</a>
-        <span class="divider">|</span>
-        <a href="/about">About</a>
-        <span class="divider">|</span>
-        <a href="/privacy">Privacy Policy</a>
-        <span class="divider">|</span>
-        <a href="/howitworks">How It Works</a> <!-- Added How It Works link -->
+        <a href="/">Home</a> | <a href="/about">About</a> | <a href="/privacy">Privacy Policy</a>
     </div>
 </body>
 </html>
