@@ -1,4 +1,4 @@
-# Playlistify
+# bagelfy
 Authors: Bryan Xiong, Darren Choe
 
 
