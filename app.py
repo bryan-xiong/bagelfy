@@ -25,7 +25,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
 
 @app.route('/')
 def home():
-    return render_template("home.html")
+    return render_template("index.html")
 
 @app.route('/about')
 def about():
