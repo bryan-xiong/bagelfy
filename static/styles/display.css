@@ -1,0 +1,224 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+}
+h1{
+    color: #800080; /* Purple */
+    margin-bottom: 5px;
+}
+h2{
+    color:purple;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    opacity: 0; /* Initially hidden */
+    animation: fadeInAnimation 0.5s ease forwards; /* Animation setup */
+    position: relative; /* Ensure relative positioning for absolute child */
+    width: 100%;
+    max-width: 800px;
+}
+img {
+    vertical-align: middle;
+    margin-right: 10px;
+    border-radius: 5px;
+    width: 50px;
+    height: 50px;
+}
+.track-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to start (left) */
+    flex: 1; /* Take remaining space */
+    margin-left: 10px; /* Adjust margin as needed */
+    overflow: hidden;
+    position: relative;
+}
+.track-name {
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-bottom: 5px; /* Optional: Adjust spacing */
+    max-width: calc(100% - 20px); /* Adjust based on your design */
+}
+
+.track-name a {
+    text-decoration: none;
+    color: #333; /* Adjust link color as needed */
+}
+
+.track-name a:hover {
+    text-decoration: underline;
+}
+.track-info-details {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9em; /* Adjust font size for details */
+    color: #666; /* Adjust color for details */
+}
+.add-to-playlist {
+    color: #800080; /* Purple */
+    font-size: 1.5em;
+    text-decoration: none;
+    transition: color 0.3s;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.add-to-playlist.show {
+    opacity: 1;
+}
+
+.add-to-playlist::after {
+    content: "+";
+    background-color: transparent;
+    color: #800080; /* Purple */
+    padding: 5px;
+    font-size: 1em;
+}
+ /* Create playlist button styling */
+ .create-playlist-button {
+    background-color: #800080; /* Purple */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+/* Create playlist button hover effect */
+.create-playlist-button:hover {
+    background-color: #6a006a; /* Darker purple on hover */
+}
+ /* Success message styling */
+ .success-message {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: none;
+    display: none; /* Initially hidden */
+}
+.success-message2 {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    display: none; /* Initially hidden */
+    animation: fadeInAnimation 0.5s ease forwards, fadeOutAnimation 0.5s ease forwards;
+    position: absolute; /* Absolute positioning */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Ensure it's above other content */
+    max-width: calc(100% - 40px); /* Limit maximum width to prevent stretching */
+    overflow: hidden; /* Hide any overflowing content */
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOutAnimation {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+.logout-button {
+    position: absolute;
+    top:15px;
+    right: 15px;
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1.2em; /* Larger font size */
+    background-color: #ff3333; /* Red */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #cc0000; /* Darker red on hover */
+}
+.credits {
+    color: black;
+    margin-top: 20px;
+    font-size: 0.7em; /* Smaller font size for credits */
+}
+.footer-links {
+    margin-top: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em; /* Smaller font size for footer links */
+}
+.footer-links a {
+    margin: 0 10px;
+    color: #800080; /* Purple */
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.footer-links a:hover {
+    color: #6a0dad; /* Darker purple on hover */
+}
+.divider {
+    margin: 0 5px;
+    color: #999; /* Light gray */
+}
+.back-button {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    color: #000; /* Black text */
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    font-size: 2em;
+}
+
+.back-button:hover {
+    background-color: #7f7e7e; /* Darker background on hover */
+}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bagelfy</title>
+    <link rel="stylesheet" href="/static/styles/display.css">
+</head>
+<body>
+    <a href="javascript:history.back()" class="back-button">←</a>
+    <a href="#" class="logout-button" onclick="initiateLogout()">Log out</a>
+
+    <h1>Playlist "{{ playlist_name }}":</h1>
+    
+    <h2>Tracks:</h2>
+
+    <form id="createPlaylistForm">
+        <button type="submit" class="create-playlist-button">Add Recommendation Playlist to Your Library</button>
+    </form>
+
+    <div id="successMessage" class="success-message">
+        Playlist added to library successfully!
+    </div>
+
+    <ul>
+        {% for track in track_infos %}
+            <li style="animation-delay: {{ loop.index * 0.1 }}s;"> <!-- Animation delay based on index -->
+                {% if track['image'] %}
+                    <img src="{{ track['image'] }}" alt="{{ track['name'] }}">
+                {% endif %}
+                <div class="track-info">
+                    <div class="track-name">
+                        <a href="{{ track['external_urls'] }}" target="_blank" rel="noopener noreferrer" title="View song on Spotify">{{ track['name'] }}</a>
+                    </div>
+                    <div class="track-info-details">{{ track['artists'] }} - {{ track['duration'] // 60000 }}:{{ ((track['duration'] // 1000) % 60) | format_duration }}</div>
+                </div>
+                <a href="#" class="add-to-playlist" onclick="addToPlaylist('{{ playlist_id|escape }}', '{{ track['id']|escape }}'); return false;" data-track-id="{{ track['id'] }}" title="Add song to current playlist"></a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div id="trackSuccess" class="success-message2">
+        Track successfully added to current playlist!
+    </div>
+
+    <div class="credits">
+        <p>Made by Bryan Xiong and Darren Choe</p>
+    </div>
+
+    <div class="footer-links">
+        <a href="/">Home</a>
+        <span class="divider">|</span>
+        <a href="/about">About</a>
+        <span class="divider">|</span>
+        <a href="/privacy">Privacy Policy</a>
+        <span class="divider">|</span>
+        <a href="https://github.com/bryan-xiong/bagelfy" target="_blank">GitHub</a>
+    </div>
+
+    <script>
+        function addToPlaylist(playlistId, trackId) {
+            event.preventDefault();
+
+            // Construct the URL for the POST request
+            var url = '/add_track/' + encodeURIComponent(playlistId) + '/' + encodeURIComponent(trackId);
+
+            // Make a POST request using fetch API
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add track');
+                }
+                return response.json();
+            })
+            .then(data => {
+                var addButton = document.querySelector(`.add-to-playlist[data-track-id="${trackId}"]`);
+                var trackSuccess = document.getElementById('trackSuccess');
+                var addButtonRect = addButton.getBoundingClientRect();
+
+                // Calculate the position by adding the scroll offset
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+                trackSuccess.style.left = `${addButtonRect.left + scrollLeft}px`;
+                trackSuccess.style.top = `${addButtonRect.top + scrollTop - trackSuccess.offsetHeight - 60}px`; // Position above the button
+                trackSuccess.style.display = 'block';
+
+                 // Apply fade-in animation
+                trackSuccess.style.animation = 'fadeInAnimation 0.5s ease forwards';
+
+                // Fade out after 1 second
+                setTimeout(() => {
+                    trackSuccess.style.animation = 'fadeOutAnimation 0.5s ease forwards';
+                    setTimeout(() => {
+                        trackSuccess.style.display = 'none';
+                        trackSuccess.style.opacity = '1'; // Reset opacity for next display
+                    }, 500); // Fade out animation duration
+                }, 1000); // Message display duration
+
+                // Hide the add button after adding the track
+                addButton.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+         // Handle form submission
+         document.getElementById('createPlaylistForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent default form submission
+            console.log('Form submitted');
+
+            // Construct data object to send to Flask
+            var formData = {
+                playlist_name: '{{ playlist_name }}',  // Replace with actual playlist_name value
+                track_uris: [{% for track_uri in track_uris %}'{{ track_uri }}',{% endfor %}]  // Replace with actual track_uris array
+            };
+
+            // Make a POST request using fetch API
+            fetch('/create_playlist/{{ playlist_id }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to create playlist');
+            }
+            return response.json();
+            })
+            .then(data => {
+                // Hide the form and display success message
+                document.getElementById('createPlaylistForm').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create playlist'); // Display an error message
+            });
+        });
+    </script>
+    <script src="/static/scripts/logout.js"></script>
+</body>
+</html>

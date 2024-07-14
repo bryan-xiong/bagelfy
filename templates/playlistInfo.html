@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bagelfy</title>
+    <link rel="stylesheet" href="/static/styles/playlistInfo.css">
+</head>
+<body>
+    <a href="javascript:history.back()" class="back-button">←</a>
+    
+    <a href="#" class="logout-button" onclick="initiateLogout()">Log out</a>
+
+    <div class="container">
+        <h1>Create your new playlist of recommended songs:</h1>
+        <form action="{{ url_for('playlistInfo', playlist_id=playlist_id) }}" method="POST">
+            <label for="num_songs">Number of Songs:</label>
+            <input type="number" id="num_songs" name="num_songs" min="1" max="50" placeholder="Max 50 songs">
+            <label for="playlist_name">Playlist Name:</label>
+            <input type="text" id="playlist_name" name="playlist_name" placeholder="My Recommendation Playlist">
+            <button type="submit">Create Playlist</button>
+        </form>
+        <h2 class="note">If left blank, your playlist defaults to 10 songs and "My Recommendation Playlist."</h2>
+    </div>
+
+    <div class="credits">
+        <p>Made by Bryan Xiong and Darren Choe</p>
+    </div>
+
+    <div class="footer-links">
+        <a href="/">Home</a>
+        <span class="divider">|</span>
+        <a href="/about">About</a>
+        <span class="divider">|</span>
+        <a href="/privacy">Privacy Policy</a>
+        <span class="divider">|</span>
+        <a href="https://github.com/bryan-xiong/bagelfy" target="_blank">GitHub</a>
+    </div>
+    <script src="/static/scripts/logout.js"></script>
+</body>
+</html>
+

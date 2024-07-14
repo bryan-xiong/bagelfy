@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bagelfy</title>
+    <link rel="stylesheet" href="/static/styles/playlists.css">
+</head>
+<body>
+    <a href="#" class="logout-button" onclick="initiateLogout()">Log out</a>
+
+    <h1>Welcome to bagelfy!</h1>
+
+    <p>Select a playlist to get started:</p>
+
+    <ul>
+        {% for playlist in playlists %}
+            <li style="animation-delay: {{ loop.index * 0.1 }}s;"> <!-- Animation delay based on index -->
+                <div class="playlist-item">
+                    {% if playlist.images and playlist.images[0].url %}
+                        <img src="{{ playlist.images[0].url }}" alt="{{ playlist.name }}">
+                    {% endif %}
+                    <a href="{{ url_for('playlistInfo', playlist_id=playlist.id) }}" class="playlist-name">
+                        {{ playlist.name }}
+                    </a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="credits">
+        <p>Made by Bryan Xiong and Darren Choe</p>
+    </div>
+
+    <div class="footer-links">
+        <a href="/">Home</a>
+        <span class="divider">|</span>
+        <a href="/about">About</a>
+        <span class="divider">|</span>
+        <a href="/privacy">Privacy Policy</a>
+        <span class="divider">|</span>
+        <a href="https://github.com/bryan-xiong/bagelfy" target="_blank">GitHub</a>
+    </div>
+    <script src="/static/scripts/logout.js"></script>
+</body>
+</html>
