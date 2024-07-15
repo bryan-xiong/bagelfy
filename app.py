@@ -23,7 +23,8 @@ SCOPE = 'playlist-modify-public playlist-modify-private user-read-private'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                client_secret=CLIENT_SECRET,
                                                redirect_uri=REDIRECT_URI,
-                                               scope=SCOPE))
+                                               scope=SCOPE,
+                                               ))
 
 @app.route('/')
 def home():
@@ -297,12 +298,37 @@ def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
 @app.route('/add_track/<playlist_id>/<track_id>', methods=['POST'])
 def add_track(playlist_id, track_id):
     try:
-        sp.playlist_add_items(playlist_id, [track_id])
-        return jsonify({'message': 'Track added successfully!'}), 200
-    except spotipy.SpotifyException as e:
-        error_message = f"Spotify API error: {str(e)}"
-        logging.error(error_message)
-        return jsonify({'error': error_message}), 500
+        # Retrieve access token from the session or wherever it's stored
+        access_token = request.headers.get('Authorization').replace('Bearer ', '')
+
+        # Construct the request headers
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        # Construct the track URI
+        track_uri = f'spotify:track:{track_id}'
+
+        # Construct the request URL
+        url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
+
+        # Prepare the request data
+        data = {
+            'uris': [track_uri]
+        }
+
+        # Make the POST request to add the track to the playlist
+        response = requests.post(url, headers=headers, json=data)
+
+        # Check if the request was successful
+        if response.status_code == 201:
+            return jsonify({'message': 'Track added successfully!'}), 200
+        else:
+            error_message = f"Failed to add track. Status code: {response.status_code}, Error: {response.text}"
+            logging.error(error_message)
+            return jsonify({'error': error_message}), response.status_code
+        
     except Exception as e:
         error_message = f"Failed to add track: {str(e)}"
         logging.error(error_message)
