@@ -299,8 +299,15 @@ def add_track(playlist_id, track_id):
     try:
         sp.playlist_add_items(playlist_id, [track_id])
         return jsonify({'message': 'Track added successfully!'}), 200
+    except spotipy.SpotifyException as e:
+        error_message = f"Spotify API error: {str(e)}"
+        logging.error(error_message)
+        return jsonify({'error': error_message}), 500
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
+        error_message = f"Failed to add track: {str(e)}"
+        logging.error(error_message)
+        return jsonify({'error': error_message}), 500
+
 
 @app.template_filter('format_duration')
 def format_duration(value):
