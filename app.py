@@ -12,6 +12,7 @@ from flask_cors import CORS
 from urllib.parse import urlencode
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
+CORS(app, resources={r"/*": {"origins": "https://quiet-chamber-15314-d9d157e1046c.herokuapp.com/"}})
 app.secret_key = os.urandom(24)
 
 # Spotify API credentials
