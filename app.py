@@ -18,7 +18,7 @@ app.secret_key = os.urandom(24)
 # Spotify API credentials
 CLIENT_ID = '2e2fd139796d4aab89e60b40777567d9'
 CLIENT_SECRET = '93f996cf889542fe9dec5f8bf53fccbc'
-REDIRECT_URI = 'http://localhost:5000/callback'
+REDIRECT_URI = 'https://quiet-chamber-15314-d9d157e1046c.herokuapp.com/callback'
 SCOPE = 'playlist-modify-public playlist-modify-private user-read-private'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                client_secret=CLIENT_SECRET,
