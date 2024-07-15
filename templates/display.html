@@ -63,12 +63,14 @@
 
             // Construct the URL for the POST request
             var url = '/add_track/' + encodeURIComponent(playlistId) + '/' + encodeURIComponent(trackId);
+            var accessToken = '{{ session.get("access_token") }}';
 
             // Make a POST request using fetch API
             fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + accessToken
                 }
             })
             .then(response => {
