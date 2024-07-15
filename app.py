@@ -2,7 +2,6 @@ import os
 import time
 import logging
 import requests
-import webbrowser
 import random
 import spotipy
 from base64 import b64encode
