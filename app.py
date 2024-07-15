@@ -8,6 +8,7 @@ import spotipy
 from base64 import b64encode
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, render_template, redirect, request, session, url_for, flash, jsonify
+from flask_cors import CORS
 from urllib.parse import urlencode
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
