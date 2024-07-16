@@ -262,7 +262,7 @@ def calculate_avg_features(audio_features):
     }
     return avg_features
 
-def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
+def get_recommendations(headers, random_genres, avg_features, track_ids, limit):
     unique_recommendations = []
     attempts = 0
     max_attempts = 5  # Limiting the number of attempts to avoid potential infinite loops
@@ -273,7 +273,7 @@ def get_recommendations(headers, random_tracks, avg_features, track_ids, limit):
             headers=headers,
             params={
                 'limit': limit,
-                'seed_tracks': random_tracks,
+                'seed_genres': random_genres,
                 'target_danceability': avg_features['danceability'],
                 'target_energy': avg_features['energy'],
                 'target_loudness': avg_features['loudness'],
