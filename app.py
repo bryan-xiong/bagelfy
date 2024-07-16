@@ -157,6 +157,7 @@ def playlistInfo(playlist_id):
             print(f"Error fetching track information: {e}")
             flash("Failed to fetch track information.")
             return redirect(url_for('playlistInfo', playlist_id=playlist_id))
+        
         genres = []
         for artist_id in artist_ids:
             try:
@@ -273,7 +274,7 @@ def get_recommendations(headers, random_genres, avg_features, track_ids, limit):
             headers=headers,
             params={
                 'limit': limit,
-                'seed_genres': random_genres,
+                'seed_genres': ','.join(random_genres),
                 'target_danceability': avg_features['danceability'],
                 'target_energy': avg_features['energy'],
                 'target_loudness': avg_features['loudness'],
