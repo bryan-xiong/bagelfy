@@ -146,6 +146,32 @@ def playlistInfo(playlist_id):
 
         # Get 5 random tracks to use as seeds
         random_tracks = random.sample(track_ids, 5) if len(track_ids) >= 5 else track_ids
+
+        artist_ids = []
+        try:
+            tracks_response = requests.get('https://api.spotify.com/v1/tracks', headers=headers, params={'ids': ','.join(random_tracks)})
+            tracks_response.raise_for_status()
+            tracks_info = tracks_response.json()['tracks']
+            artist_ids = [track['artists'][0]['id'] for track in tracks_info]
+        except requests.RequestException as e:
+            print(f"Error fetching track information: {e}")
+            flash("Failed to fetch track information.")
+            return redirect(url_for('playlistInfo', playlist_id=playlist_id))
+        genres = []
+        for artist_id in artist_ids:
+            try:
+                artist_response = requests.get(f'https://api.spotify.com/v1/artists/{artist_id}', headers=headers)
+                artist_response.raise_for_status()
+                artist_info = artist_response.json()
+                genres.extend(artist_info['genres'])
+            except requests.RequestException as e:
+                print(f"Error fetching artist information: {e}")
+                flash("Failed to fetch artist information.")
+                return redirect(url_for('playlistInfo', playlist_id=playlist_id))
+
+        # Deduplicate genres and pick random ones if necessary
+        unique_genres = list(set(genres))
+        random_genres = random.sample(unique_genres, 5) if len(unique_genres) >= 5 else unique_genres
         
         try:
             audio_features_response = requests.get('https://api.spotify.com/v1/audio-features', headers=headers, params={'ids': ','.join(track_ids)})
@@ -157,7 +183,7 @@ def playlistInfo(playlist_id):
             return redirect(url_for('playlistInfo', playlist_id=playlist_id))
 
         avg_features = calculate_avg_features(audio_features)
-        recommendations = get_recommendations(headers, random_tracks, avg_features, track_ids, num_songs)
+        recommendations = get_recommendations(headers, random_genres, avg_features, track_ids, num_songs)
 
         if not recommendations:
             print(f"Error fetching recs: ")
