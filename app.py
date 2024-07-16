@@ -18,7 +18,7 @@ app.secret_key = os.urandom(24)
 CLIENT_ID = '2e2fd139796d4aab89e60b40777567d9'
 CLIENT_SECRET = '93f996cf889542fe9dec5f8bf53fccbc'
 REDIRECT_URI = 'https://bagelfy-550a4deff89a.herokuapp.com/callback'
-SCOPE = 'playlist-modify-public playlist-modify-private user-read-private'
+SCOPE = 'playlist-modify-public playlist-modify-private playlist-read-collaborative playlist-read-private'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                client_secret=CLIENT_SECRET,
                                                redirect_uri=REDIRECT_URI,
