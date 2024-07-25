@@ -1,6 +1,8 @@
 # bagelfy
 Authors: Bryan Xiong, Darren Choe
 
+Website is currently down while waiting for Spotify developer quota extension to be approved
+
 
 
 # Installation Instructions
